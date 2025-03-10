@@ -9,7 +9,7 @@ from langchain.llms import BaseLLM
 st.title("Suman Data Science Tutor Chatbot")
 
 # API key setup (Make sure to use your actual API key here)
-api_key = "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ
+api_key = "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ"
 
 # Validating API key
 if api_key == "your_actual_api_key_here" or not api_key:
