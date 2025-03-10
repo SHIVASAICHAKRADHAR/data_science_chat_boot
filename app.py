@@ -9,10 +9,10 @@ from langchain.llms import BaseLLM
 st.title("Suman Data Science Tutor Chatbot")
 
 # API key setup (Make sure to use your actual API key here)
-api_key = "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ"
+api_key = "your_actual_api_key_here"  # Replace with your actual Gemini API key
 
-# Validating API key
-if api_key == "your_actual_api_key_here" or not api_key:
+# Validate API key
+if api_key == "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ" or not api_key:
     st.error("API key is not available or invalid.")
     st.stop()
 
@@ -21,7 +21,7 @@ ai.configure(api_key=api_key)
 
 # Create a custom LLM wrapper for Gemini 1.5 Pro
 class GeminiLLM(BaseLLM):
-    def __init__(self, model_name="models/gemini-1.5-pro"):
+    def __init__(self, model_name="Gemini 1.5 Pro"):
         self.model_name = model_name
     
     def _call(self, prompt: str) -> str:
@@ -36,7 +36,7 @@ class GeminiLLM(BaseLLM):
         return "google_gemini"
 
 # Initialize the custom Gemini model
-gemini_llm = GeminiLLM(model_name="models/gemini-1.5-pro")
+gemini_llm = GeminiLLM(model_name="Gemini 1.5 Pro")
 
 # Define the system prompt for the assistant
 sys_prompt = """
@@ -104,4 +104,3 @@ if user_input.strip():  # If the user has entered some text
 
     except Exception as e:
         st.error(f"Error generating content: {str(e)}")
-
