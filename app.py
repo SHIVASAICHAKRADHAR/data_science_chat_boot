@@ -31,7 +31,7 @@ class GeminiLLM(BaseLLM):
         return "google_gemini"
 
 # Initialize the custom Gemini model
-gemini_llm = GeminiLLM(model_name="models/gemini-1.5-flash-8b-latest")
+gemini_llm = GeminiLLM(model_name="Gemini 1.5 Pro")
 
 # Define the system prompt for the assistant
 sys_prompt = """
