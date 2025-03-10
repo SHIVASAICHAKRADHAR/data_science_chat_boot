@@ -21,7 +21,7 @@ ai.configure(api_key=api_key)
 
 # Create a custom LLM wrapper for Gemini 1.5 Pro
 class GeminiLLM(BaseLLM):
-    def __init__(self, model_name="Gemini 1.5 Pro"):
+    def __init__(self, model_name="models/gemini-1.5-pro"):
         self.model_name = model_name
     
     def _call(self, prompt: str) -> str:
@@ -36,7 +36,7 @@ class GeminiLLM(BaseLLM):
         return "google_gemini"
 
 # Initialize the custom Gemini model
-gemini_llm = GeminiLLM(model_name="Gemini 1.5 Pro")
+gemini_llm = GeminiLLM(model_name="models/gemini-1.5-pro")
 
 # Define the system prompt for the assistant
 sys_prompt = """
