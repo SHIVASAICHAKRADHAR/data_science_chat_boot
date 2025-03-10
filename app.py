@@ -8,8 +8,13 @@ from langchain.llms import BaseLLM
 # Title of Streamlit app
 st.title("Suman Data Science Tutor Chatbot")
 
-# Directly provide the API key
-api_key = "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ"  # Replace with your actual Gemini API key
+# API key setup (Make sure to use your actual API key here)
+api_key = "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ
+
+# Validating API key
+if api_key == "your_actual_api_key_here" or not api_key:
+    st.error("API key is not available or invalid.")
+    st.stop()
 
 # Configure Google Gemini API with the API key
 ai.configure(api_key=api_key)
@@ -60,7 +65,7 @@ if "messages" not in st.session_state:
 
 # Personalized Greeting
 if len(st.session_state.messages) == 0:
-    st.markdown("""
+    st.markdown(""" 
     ## Hello, welcome to the Data Science Tutor Chatbot! 👋
 
     Hi, this is **Suman** talking to you, and I am your AI tutor. Feel free to ask me any questions related to Data Science! 😊
@@ -100,5 +105,3 @@ if user_input.strip():  # If the user has entered some text
     except Exception as e:
         st.error(f"Error generating content: {str(e)}")
 
-else:
-    st.error("API key is not available or invalid.")
