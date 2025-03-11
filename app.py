@@ -1,106 +1,85 @@
 import streamlit as st
-import google.generativeai as ai
-from langchain.prompts import PromptTemplate
-from langchain.chains import ConversationChain
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
+from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferMemory
-from langchain.llms import BaseLLM
+from langchain_core.runnables import RunnableLambda
 
-# Title of Streamlit app
-st.title("Suman Data Science Tutor Chatbot")
-
-# API key setup (Make sure to use your actual API key here)
-api_key = "your_actual_api_key_here"  # Replace with your actual Gemini API key
-
-# Validate API key
-if api_key == "AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ" or not api_key:
-    st.error("API key is not available or invalid.")
-    st.stop()
-
-# Configure Google Gemini API with the API key
-ai.configure(api_key=api_key)
-
-# Create a custom LLM wrapper for Gemini 1.5 Pro
-class GeminiLLM(BaseLLM):
-    def __init__(self, model_name="Gemini 1.5 Pro"):
-        self.model_name = model_name
-    
-    def _call(self, prompt: str) -> str:
-        # Generate the response from Google's Gemini API
-        try:
-            response = ai.GenerativeModel(model_name=self.model_name).generate_content(prompt)
-            return response.text
-        except Exception as e:
-            raise ValueError(f"Error generating response from Gemini model: {str(e)}")
-    
-    def _llm_type(self) -> str:
-        return "google_gemini"
-
-# Initialize the custom Gemini model
-gemini_llm = GeminiLLM(model_name="Gemini 1.5 Pro")
-
-# Define the system prompt for the assistant
-sys_prompt = """
-You are a helpful AI tutor for data science.
-Students will ask you doubts related to various topics in Data Science.
-You are expected to reply in as much detail as possible.
-Make sure to take examples while explaining the concepts.
-In case a student asks any question outside the data science scope,
-politely decline and tell them to ask questions within the data science domain only.
-"""
-
-# Initialize memory to store conversation history
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-# Initialize the conversation chain
-conversation = ConversationChain(
-    llm=gemini_llm, 
-    memory=memory,
-    verbose=True,
-    prompt=PromptTemplate(input_variables=["question"], template=sys_prompt)
+# Initialize AI Model
+chat_model = ChatGoogleGenerativeAI(
+    google_api_key="AIzaSyC_gR124QEGp4tWdjWIPrclyW9vucxo7GQ",
+    model="gemini-1.5-pro",
+    temperature=1
 )
 
-# Initialize session state for storing conversation history if not already initialized
+# Define Chat Template
+chat_template = ChatPromptTemplate(
+    messages=[
+        ("system", "👨‍🏫 You are an AI Data Science Tutor. "
+                   "You must answer ONLY Data Science-related questions. "
+                   "If the user asks non-data science questions, politely refuse and redirect them to relevant topics. "
+                   "Provide detailed technical explanations in simple terms. "
+                   "When relevant, include code snippets and AI-generated images to enhance understanding. "
+                   "Ensure that all code is clean, efficient, and uses best practices. "
+                   "For coding questions, always include proper syntax, explanations, and example outputs. "
+                   "For visualization-related topics, generate appropriate images using AI."),
+        MessagesPlaceholder(variable_name="chat_history"),
+        HumanMessagePromptTemplate.from_template("{human_input}"),
+    ]
+)
+
+output_parser = StrOutputParser()
+memory = ConversationBufferMemory(return_messages=True)
+
+def get_history_and_input(user_input):
+    return {
+        "chat_history": memory.chat_memory.messages,
+        "human_input": user_input
+    }
+
+def get_history(_=None):
+    return {"chat_history": memory.chat_memory.messages}
+
+chain = (
+    RunnableLambda(lambda x: get_history_and_input(x["human_input"]))
+    | chat_template
+    | chat_model
+    | output_parser
+)
+
+# Streamlit UI
+st.set_page_config(page_title="🤖 Data Science Chatbot", layout="wide")
+
+st.title("📊 Data Science Chatbot")
+st.markdown("Ask me anything about Data Science! 🤓")
+
+# Chat History UI
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state["messages"] = []
 
-# Personalized Greeting
-if len(st.session_state.messages) == 0:
-    st.markdown(""" 
-    ## Hello, welcome to the Data Science Tutor Chatbot! 👋
+for message in st.session_state["messages"]:
+    role, content = message
+    if role == "user":
+        st.markdown(f"👤 **You:** {content}")
+    else:
+        st.markdown(f"🤖 **AI:** {content}")
 
-    Hi, this is **Suman** talking to you, and I am your AI tutor. Feel free to ask me any questions related to Data Science! 😊
+# User Input
+user_input = st.text_input("💬 Type your message:", key="user_input")
 
-    I'm here to help you with your doubts. Let's get started!
-    """)
+if st.button("Send ✉️") and user_input:
+    # Display user message
+    st.session_state["messages"].append(("user", user_input))
 
-# Function to display conversation history
-def display_chat():
-    for message in st.session_state.messages:
-        if message["role"] == "user":
-            st.markdown(f"**You:** {message['text']}")
-        elif message["role"] == "assistant":
-            st.markdown(f"**Suman (Tutor):** {message['text']}")
+    # Get AI response
+    query = {"human_input": user_input}
+    response = chain.invoke(query)
 
-# Display previous conversation
-display_chat()
+    # Display AI response
+    st.session_state["messages"].append(("ai", response))
+    st.markdown(f"🤖 **AI:** {response}")
 
-# User input field
-user_input = st.text_input("Enter your question:", placeholder="Ask your question here...")
-
-if user_input.strip():  # If the user has entered some text
-    # Append user input to the chat history in session state
-    st.session_state.messages.append({"role": "user", "text": user_input})
-
-    # Generate response using Langchain
-    try:
-        # Send the user query to the conversation chain and get the assistant's response
-        assistant_response = conversation.predict(input=user_input)
-
-        # Append assistant's response to the session state
-        st.session_state.messages.append({"role": "assistant", "text": assistant_response})
-
-        # Display the updated chat
-        display_chat()
-
-    except Exception as e:
-        st.error(f"Error generating content: {str(e)}")
+    # Save to memory
+    memory.chat_memory.add_user_message(user_input)
+    memory.chat_memory.add_ai_message(response)
