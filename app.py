@@ -53,7 +53,7 @@ st.set_page_config(page_title="🤖 Data Science Chatbot", layout="wide")
 
 st.title("Suman Data Science AI Chatbot")
 st.subheader("Ask your doubts here")
-st.markdown("Ask me anything about Data Science! 🤓")
+
 
 # Chat History UI
 if "messages" not in st.session_state:
@@ -67,9 +67,9 @@ for message in st.session_state["messages"]:
         st.markdown(f"🤖 **AI:** {content}")
 
 # User Input
-user_input = st.text_input("💬 Type your message:", key="user_input")
+user_input = st.text_input("💬 Write ✍🏻 your Message:", key="user_input")
 
-if st.button("Send ✉️") and user_input:
+if st.button("Enter") and user_input:
     # Display user message
     st.session_state["messages"].append(("user", user_input))
 
