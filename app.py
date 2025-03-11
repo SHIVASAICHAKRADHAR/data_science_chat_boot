@@ -83,5 +83,5 @@ st.markdown(f"🤖 **AI:** {response}")
 
 st.subheader("This app is made to help the students and professionals to learn about data science Made by Suman")
     # Save to memory
-    memory.chat_memory.add_user_message(user_input)
-    memory.chat_memory.add_ai_message(response)
+  memory.chat_memory.add_user_message(user_input)
+ memory.chat_memory.add_ai_message(response)
