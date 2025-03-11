@@ -51,7 +51,8 @@ chain = (
 # Streamlit UI
 st.set_page_config(page_title="🤖 Data Science Chatbot", layout="wide")
 
-st.title("Suman Data Science Ai Tutor")
+st.title("Suman Data Science AI Chatbot")
+st.subheader("Ask your doubts here")
 st.markdown("Ask me anything about Data Science! 🤓")
 
 # Chat History UI
@@ -78,10 +79,8 @@ if st.button("Send ✉️") and user_input:
 
     # Display AI response
     st.session_state["messages"].append(("ai", response))
-
-st.markdown(f"🤖 **AI:** {response}")
-
+    st.markdown(f"🤖 **AI:** {response}")
 
     # Save to memory
-  memory.chat_memory.add_user_message(user_input)
-  memory.chat_memory.add_ai_message(response)
+    memory.chat_memory.add_user_message(user_input)
+    memory.chat_memory.add_ai_message(response)
